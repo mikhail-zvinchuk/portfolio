@@ -20,12 +20,22 @@ jobs:
          run: |
             npm ci
             npm run build
+
+       - name: Upload Artifacts
+         uses: actions/upload-artifact@v2
+         with:
+          name: dist
+          path: dist
       
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
      
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -35,4 +45,4 @@ jobs:
           aws-region: eu-west-3
       
       - name: Deploy static site to S3 bucket
-        run: aws s3 sync ./dist ${{ secrets.AWS_BUCKET_LINK }} --delete
+        run: aws s3 sync . ${{ secrets.AWS_BUCKET_LINK }} --delete
